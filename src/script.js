@@ -2,7 +2,8 @@ const BASE_URL = "https://newsapi.org/v2";
 const API_KEY = "2dd0a520554a4f0ab545cf3181876aeb";
 const COUNTRY = "br";
 
-let categorySelected = 'lastNews';
+let categorySelected = '';
+let articlePhrases = '';
 
 let boardNews = document.getElementById('listaDeNoticias');
 
@@ -12,12 +13,18 @@ let techNews = document.getElementById('tec');
 lastNews.addEventListener('click', getLastNews);
 techNews.addEventListener('click', getTechNews);
 
-async function getNews(category=''){
+async function getNews(category='', q=''){
   cleanScreen();
 
   link = category == '' 
     ? `${BASE_URL}/top-headlines?country=${COUNTRY}&apiKey=${API_KEY}`
     : `${BASE_URL}/top-headlines?country=${COUNTRY}&category=${category}&apiKey=${API_KEY}`
+
+  link = q == ''
+    ? link
+    : `${link}&q=${q}`
+
+  alert(link);
   
   let res = await fetch(link);
   let data = await res.json();
@@ -63,13 +70,18 @@ async function getNews(category=''){
 }
 
 function getTechNews(){
-  categorySelected = 'techNews';
-  getNews('technology');
+  categorySelected = 'technology';
+  getNews(categorySelected);
 }
 
 function getLastNews(){
-  categorySelected = 'lastNews';
+  categorySelected = '';
   getNews();
+}
+
+function searchNews(){
+  articlePhrases = document.getElementById('article-phrases').value;
+  getNews(categorySelected, articlePhrases);
 }
 
 function cleanScreen(){
@@ -79,3 +91,10 @@ function cleanScreen(){
 window.onload = function(){
   getLastNews();
 }
+
+
+$('#exampleModal').on('show.bs.modal', function (event) {
+  let button = $(event.relatedTarget);
+  let modal = $(this)
+  modal.find('.modal-title').text('Digite um assunto para pesquisar')
+})
