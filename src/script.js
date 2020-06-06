@@ -5,16 +5,25 @@ const COUNTRY = "br";
 let categorySelected = '';
 let articlePhrases = '';
 
+let home = document.getElementById('logo');
 let boardNews = document.getElementById('listaDeNoticias');
-
 let lastNews = document.getElementById('ultimas');
 let techNews = document.getElementById('tec');
+let searchInput = document.getElementById('article-phrases');
+let searchButton = document.getElementById('searchButton');
 
+logo.addEventListener('click', getLastNews);
 lastNews.addEventListener('click', getLastNews);
 techNews.addEventListener('click', getTechNews);
+searchInput.addEventListener('keyup', event => {
+  if(event.keyCode == 13){
+    searchButton.click();
+  }  
+});
+
 
 async function getNews(category='', q=''){
-  cleanScreen();
+  cleanScreen(category);
 
   link = category == '' 
     ? `${BASE_URL}/top-headlines?country=${COUNTRY}&apiKey=${API_KEY}`
@@ -23,8 +32,6 @@ async function getNews(category='', q=''){
   link = q == ''
     ? link
     : `${link}&q=${q}`
-
-  alert(link);
   
   let res = await fetch(link);
   let data = await res.json();
@@ -71,30 +78,42 @@ async function getNews(category='', q=''){
 
 function getTechNews(){
   categorySelected = 'technology';
+  articlePhrases = '';
   getNews(categorySelected);
 }
 
 function getLastNews(){
   categorySelected = '';
+  articlePhrases = '';
   getNews();
 }
 
 function searchNews(){
-  articlePhrases = document.getElementById('article-phrases').value;
+  articlePhrases = searchInput.value;
   getNews(categorySelected, articlePhrases);
 }
 
-function cleanScreen(){
+function updateNewsBoard(){
+  getNews(categorySelected, articlePhrases);
+}
+
+function cleanScreen(category){
   boardNews.innerHTML = "";
+
+  lastNews.classList.remove('active');
+  techNews.classList.remove('active');
+
+  category == ''
+    ? lastNews.classList.add('active')
+    : techNews.classList.add('active')
 }
 
 window.onload = function(){
   getLastNews();
 }
 
-
-$('#exampleModal').on('show.bs.modal', function (event) {
-  let button = $(event.relatedTarget);
-  let modal = $(this)
-  modal.find('.modal-title').text('Digite um assunto para pesquisar')
-})
+document.getElementById('#exampleModal')
+  .on('show.bs.modal', event => {
+    let modal = $(this)
+    modal.find('.modal-title').text('Digite um assunto para pesquisar')
+  });
